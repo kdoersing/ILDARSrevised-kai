@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+vedo = "*"
+scikit-learn = "*"
+pywavefront = "*"
+scipy = "*"
+numpy = "==1.23.1"
+toml = "*"
+scikit-spatial = "*"
+networkx = "*"
+pandas = "*"
+pydrive = "*"
+
+[dev-packages]
+flake8 = "*"
+black = "*"
+
+[requires]
+python_version = "3.11"
+
+[pipenv]
+allow_prereleases = true
