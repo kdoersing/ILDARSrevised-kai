@@ -1,6 +1,6 @@
 from enum import Enum
 from . import inversion
-from . import projection
+from . import projection_gnomonic
 
 ClusteringAlgorithm = Enum(
     "ClusteringAlgorithm", ["INVERSION", "GNOMONIC_PROJECTION"]
@@ -12,7 +12,7 @@ def compute_reflection_clusters(clustering_algorithm, reflected_signals):
     if clustering_algorithm is ClusteringAlgorithm.INVERSION:
         clusters = inversion.compute_reflection_clusters(reflected_signals)
     elif clustering_algorithm is ClusteringAlgorithm.GNOMONIC_PROJECTION:
-        clusters = projection.compute_reflection_clusters(reflected_signals)
+        clusters = projection_gnomonic.compute_reflection_clusters(reflected_signals)
     else:
         raise NotImplementedError(
             "Clustering algorithm",
