@@ -96,6 +96,7 @@ def run_experiment(iterations=1):
     timestamp = str(
         datetime.datetime.now().replace(second=0, microsecond=0).isoformat()
     )
+    timestamp = timestamp.replace(':', '_')
 
     current_iteration = 1
     positions = []
