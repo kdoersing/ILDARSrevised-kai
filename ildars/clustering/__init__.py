@@ -1,7 +1,8 @@
 from enum import Enum
+
+from ildars.clustering.projection import stereographic_projection
 from . import inversion
 from . import projection
-from . import stereographic_projection
 
 ClusteringAlgorithm = Enum(
     "ClusteringAlgorithm", ["INVERSION", "GNOMONIC_PROJECTION", "STEREOGRAPHIC_PROJECTION"]
