@@ -3,6 +3,7 @@ from pathlib import Path
 import datetime
 import toml
 import numpy as np
+from google_drive_upload.upload_to_google_drive import upload_to_google_drive
 
 from ildars.localization.sender_localization import LocalizationAlgorithm
 
@@ -136,3 +137,4 @@ def run_experiment(iterations=1):
 
 
 run_experiment(NUM_ITERATIONS)
+upload_to_google_drive()
