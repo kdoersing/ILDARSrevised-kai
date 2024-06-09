@@ -11,7 +11,7 @@ from .hemisphere import Hemisphere
 
 
 def compute_reflection_clusters(reflected_signals):
-    hemispheres = Hemisphere.get_12_hemispheres()
+    hemispheres = Hemisphere.get_6_hemispheres()
     compute_gnomonic_projection(reflected_signals, hemispheres)
     return find_clusters(hemispheres)
 
@@ -21,6 +21,8 @@ def compute_gnomonic_projection(reflected_signals, hemispheres):
     for arc in arcs:
         for hemi in hemispheres:
             hemi.add_arc(arc)
+    for hemi in hemispheres:
+        viz.plot_line_segments(hemi)
 
 
 # Find the connected components on each hemisphere

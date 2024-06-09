@@ -111,7 +111,7 @@ def run_experiment(iterations=1):
             print("  iteration:", current_iteration)
 
             positions = Runner.run_experiment(
-                testrooms.CUBE,
+                testrooms.SLOPE,
                 receiver_position,
                 NUM_SENDERS,
                 VON_MISES_CONCENTRATION,
@@ -137,4 +137,3 @@ def run_experiment(iterations=1):
 
 
 run_experiment(NUM_ITERATIONS)
-upload_to_google_drive()

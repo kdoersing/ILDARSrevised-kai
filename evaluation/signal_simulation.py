@@ -9,6 +9,12 @@ from ildars.direct_signal import DirectSignal
 # "Small" number that the determinant is compared to
 EPSILON = 0.000000001
 
+def get_random_outside_range(min_val, max_val, exclude_min, exclude_max):
+    while True:
+        rand_val = random.uniform(min_val, max_val)
+        if rand_val < exclude_min or rand_val > exclude_max:
+            return rand_val
+
 
 def generate_measurements(receiver_position, room, num_senders):
     direct_signals = []
@@ -37,12 +43,11 @@ def generate_measurements(receiver_position, room, num_senders):
         for tri in room_triangles
     ]
     # random sender positions
+
     sender_positions = [
         np.array(
             [
-                random.uniform(-1, 1),
-                random.uniform(-1, 1),
-                random.uniform(-1, 1),
+                get_random_outside_range(-1.5, 1.5, -1, 1), get_random_outside_range(-1.5, 1.5, -1, 1), get_random_outside_range(-1.5, 1.5, -1, 1)
             ]
         )
         - receiver_position

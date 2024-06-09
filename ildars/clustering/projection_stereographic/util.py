@@ -18,6 +18,7 @@ def get_k(v_ll, center_ll):
     return 2 / (
         1 + np.sin(center_lat) * np.sin(v_lat) + np.cos(center_lat) * np.cos(v_lat) * np.cos(v_lon - center_lon)
     )
+    #return 2 / (1 + np.sin(center_lat))
 
 
 def lat_lon_to_stereographic(ll_point, ll_hemi, k_point):
@@ -40,6 +41,8 @@ def lat_lon_to_stereographic(ll_point, ll_hemi, k_point):
             * np.cos(np.radians(lon_point - lon_hemi))
         )
     )
+    #x = k_point * (np.cos(lat_point - lat_hemi) * np.cos(lon_point - lon_hemi) / 1 - np.sin(lat_point - lat_hemi))
+    #y = k_point * (np.cos(lat_point - lat_hemi) * np.sin(lon_point - lon_hemi) / 1 - np.sin(lat_point - lat_hemi))
     return (x, y)
 
 

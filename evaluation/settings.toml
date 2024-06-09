@@ -13,14 +13,14 @@ num_senders = 20
 
 [error]
 von_mises_concentration = 132.312 # expected 5 deg angular std. deviation
-delta_error = 0.1 # 10cm standard deviation
-wall_error = 0.05 # 5% of reflection will wrongly be assigned
+delta_error = 0 # 10cm standard deviation, delta_error = 0.1
+wall_error = 0 # 5% of reflection will wrongly be assigned, wall_error = 0.05
 
 [algorithms]
 
     [algorithms.clustering]
-    inversion = true
-    projection = true
+    inversion = false
+    projection = false
     stereographic_projection = true
 
     [algorithms.wall_normal]

@@ -11,7 +11,7 @@ from .hemisphere import Hemisphere
 
 
 def compute_reflection_clusters(reflected_signals):
-    hemispheres = Hemisphere.get_2_hemispheres()
+    hemispheres = Hemisphere.get_6_hemispheres()
     compute_stereographic_projection(reflected_signals, hemispheres)
     return find_clusters(hemispheres)
 
@@ -21,6 +21,8 @@ def compute_stereographic_projection(reflected_signals, hemispheres):
     for arc in arcs:
         for hemi in hemispheres:
             hemi.add_arc(arc)
+    for hemi in hemispheres:
+        viz.plot_line_segments(hemi)
 
 
 # Find the connected components on each hemisphere
@@ -36,7 +38,7 @@ def find_clusters(hemispheres):
         ]
     g = intersection_graphs[0]
     # Visualization
-    # viz.plot_hemisphere_connectivity_graph(g)
+    viz.plot_hemisphere_connectivity_graph(g, "graph")
 
     # Get connected components
     components = list(nx.connected_components(g))

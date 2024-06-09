@@ -1,7 +1,8 @@
+import itertools
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
-from skspatial.objects import Point
+from skspatial.objects import Point, LineSegment
 
 
 def plot_clipping(
@@ -22,3 +23,23 @@ def plot_clipping(
 def plot_hemisphere_connectivity_graph(g, name):
     nx.draw(g, with_labels=True)
     plt.savefig(f"{name}.svg")
+
+def plot_line_segments(hemisphere):
+        plt.figure()
+        #print(hemisphere.lines)
+        for line in hemisphere.lines:
+            plt.plot([line["start"][0], line["start"][1]], [line["end"][0], line["end"][1]], color="green", marker='o')
+
+             
+
+        # Add labels and title
+        plt.xlabel('X coordinate')
+        plt.ylabel('Y coordinate')
+        plt.title('2D Plot of Line Segments')
+        #plt.legend()
+
+        # Save the plot as an SVG file
+        plt.savefig('line_segments_plot.svg')
+
+        # Show the plot
+        plt.show()

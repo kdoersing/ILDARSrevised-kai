@@ -14,7 +14,7 @@ from . import util
 # Threshold for detecting, whether a given arc is on a given hemisphere
 # Threshold is directly taken from Rico Gießlers code, assuming the flag for
 # 12 hemispheres to always be true
-HEMI_WIDTH_DEGREE = 90
+HEMI_WIDTH_DEGREE = 37.4
 K_THRESHOLD = np.cos(np.radians(HEMI_WIDTH_DEGREE))
 PHI = (1 + 5 ** 0.5) / 2
 
@@ -46,11 +46,11 @@ class Hemisphere:
         if start_k <= K_THRESHOLD:
             new_start = self.clip_vector_to_hemisphere(arc.start, arc.end)
             start_lat_lon = util.carth_to_lat_lon(new_start)
-            start_k = util.get_cos_c(start_lat_lon, hemi_lat_lon)
+            start_k = util.get_k(start_lat_lon, hemi_lat_lon)
         elif end_k <= K_THRESHOLD:
             new_end = self.clip_vector_to_hemisphere(arc.start, arc.end)
             end_lat_lon = util.carth_to_lat_lon(new_end)
-            end_k = util.get_cos_c(end_lat_lon, hemi_lat_lon)
+            end_k = util.get_k(end_lat_lon, hemi_lat_lon)
 
         self.lines.append(
             {
