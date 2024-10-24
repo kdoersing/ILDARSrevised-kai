@@ -1,4 +1,5 @@
 import csv
+import ast
 from pathlib import Path
 import datetime
 import toml
@@ -99,18 +100,23 @@ def run_experiment(iterations=1):
     )
     timestamp = timestamp.replace(':', '_')
 
-    current_iteration = 1
+    current_iteration = 0
     positions = []
     offsets_algo = {}
+    for algo_conf in algo_configurations(algo_sel):
+            concatenated_string = ''.join([value.name for value in algo_conf.values()])
+            offsets_algo[concatenated_string] = [] # sum(positions_offsets)/len(positions_offsets)
 
     while current_iteration <= iterations:
+        hemi_width_degree = current_iteration
+        print("Iteration:", current_iteration)
         for algo_conf in algo_configurations(algo_sel):
-            print("Selected configuration:")
-            print("  Clustering algorithm:", algo_conf[STR_CLUSTERING])
-            print("  Wall normal algorithm:", algo_conf[STR_WALL_NORMAL])
-            print("  Wall selection algorithm:", algo_conf[STR_WALL_SELECTION])
-            print("  Localization algorithm:", algo_conf[STR_LOCALIZATION])
-            print("  iteration:", current_iteration)
+            #print("Selected configuration:")
+            #print("  Clustering algorithm:", algo_conf[STR_CLUSTERING])
+            #print("  Wall normal algorithm:", algo_conf[STR_WALL_NORMAL])
+            #print("  Wall selection algorithm:", algo_conf[STR_WALL_SELECTION])
+            #print("  Localization algorithm:", algo_conf[STR_LOCALIZATION])
+            #print("  iteration:", current_iteration)
 
             positions = Runner.run_experiment(
                 testrooms.SLOPE,
@@ -124,6 +130,7 @@ def run_experiment(iterations=1):
                 algo_conf[STR_WALL_SELECTION],
                 algo_conf[STR_LOCALIZATION],
                 current_iteration,
+                hemi_width_degree
             )
 
             positions_original = [pos["original"] for pos in positions]
@@ -132,12 +139,9 @@ def run_experiment(iterations=1):
                 np.linalg.norm(pos_orig - pos_comp)
                 for pos_orig, pos_comp in zip(positions_original, positions_computed)
             ]
-
             concatenated_string = ''.join([value.name for value in algo_conf.values()])
-            offsets_algo[concatenated_string] = sum(positions_offsets)/len(positions_offsets)
-
-            for key, value in offsets_algo.items():
-                print(f"{key}: {value:.2f}")
+            average = np.mean(positions_offsets)
+            offsets_algo[concatenated_string].append(average)
 
             #export_experiment_results(
             #    timestamp,
@@ -149,7 +153,27 @@ def run_experiment(iterations=1):
             #    positions,
             #)
         current_iteration += 1
+    #for key, value in offsets_algo.items():
+    #    formatted_values = ', '.join([f"{item:.2f}" for item in value])
+    #    print(f"{key}: [{formatted_values}]")
+    dict_to_csv(offsets_algo, "../Ergebnisse Hemisphere/6_Hemispheres-It-1.csv")
     return positions
 
+def dict_to_csv(input_dict, filename, include_keys=True):
+    # Datei im Schreibmodus öffnen
+    with open(filename, mode='w', newline='') as csv_file:
+        # CSV-Schreiberobjekt erstellen
+        writer = csv.writer(csv_file)
 
-run_experiment(NUM_ITERATIONS)
+        # Durch das Dictionary iterieren
+        for key, value in input_dict.items():
+            # Werte runden auf zwei Dezimalstellen
+            rounded_values = [round(float(v), 2) for v in value]
+
+            # Zeile in die CSV-Datei schreiben
+            if include_keys:
+                writer.writerow([key] + rounded_values)
+            else:
+                writer.writerow(rounded_values)
+
+run_experiment(360)

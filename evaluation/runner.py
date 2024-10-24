@@ -25,6 +25,7 @@ class Runner:
         algo_wall_sel,
         algo_localization,
         iteration,
+        hemi_width_degree
     ):
         _, reflected_signals = Runner._get_signals(
             room,
@@ -36,7 +37,7 @@ class Runner:
             iteration,
         )
         clusters = Runner._get_clusters(
-            algo_clustering, iteration, reflected_signals
+            algo_clustering, iteration, reflected_signals, hemi_width_degree
         )
         clusters_with_wn = [
             Runner._get_wall_normal(algo_wn, iteration, cluster)
@@ -78,13 +79,13 @@ class Runner:
         return Runner._simulated_signals[iteration]
 
     @staticmethod
-    def _get_clusters(algo, iteration, signals):
+    def _get_clusters(algo, iteration, signals, hemi_width_degree):
         if iteration not in Runner._clusters:
             del Runner._clusters  # Free previous iterations from memory
             Runner._clusters = {iteration: {}}
         if algo not in Runner._clusters[iteration]:
             Runner._clusters[iteration] = {
-                algo: clustering.compute_reflection_clusters(algo, signals)
+                algo: clustering.compute_reflection_clusters(algo, signals, hemi_width_degree)
             }
         return Runner._clusters[iteration][algo]
 

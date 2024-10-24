@@ -9,14 +9,14 @@ ClusteringAlgorithm = Enum(
 )
 
 
-def compute_reflection_clusters(clustering_algorithm, reflected_signals):
+def compute_reflection_clusters(clustering_algorithm, reflected_signals, hemi_width_degree):
     clusters = None
     if clustering_algorithm is ClusteringAlgorithm.INVERSION:
         clusters = inversion.compute_reflection_clusters(reflected_signals)
     elif clustering_algorithm is ClusteringAlgorithm.GNOMONIC_PROJECTION:
         clusters = projection_gnomonic.compute_reflection_clusters(reflected_signals)
     elif clustering_algorithm is ClusteringAlgorithm.STEREOGRAPHIC_PROJECTION:
-        clusters = projection_stereographic.compute_reflection_clusters(reflected_signals)
+        clusters = projection_stereographic.compute_reflection_clusters(reflected_signals, hemi_width_degree)
     else:
         raise NotImplementedError(
             "Clustering algorithm",

@@ -10,17 +10,17 @@ from .arc import Arc
 from .hemisphere import Hemisphere
 
 
-def compute_reflection_clusters(reflected_signals):
+def compute_reflection_clusters(reflected_signals, hemi_width_degree):
     hemispheres = Hemisphere.get_6_hemispheres()
-    compute_stereographic_projection(reflected_signals, hemispheres)
+    compute_stereographic_projection(reflected_signals, hemispheres, hemi_width_degree)
     return find_clusters(hemispheres)
 
 
-def compute_stereographic_projection(reflected_signals, hemispheres):
+def compute_stereographic_projection(reflected_signals, hemispheres, hemi_width_degree):
     arcs = [Arc(ref) for ref in reflected_signals]
     for arc in arcs:
         for hemi in hemispheres:
-            hemi.add_arc(arc)
+            hemi.add_arc(arc, hemi_width_degree)
     #for hemi in hemispheres:
     #    viz.plot_line_segments(hemi)
 
