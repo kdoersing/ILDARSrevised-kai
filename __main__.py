@@ -101,6 +101,8 @@ def run_experiment(iterations=1):
 
     current_iteration = 1
     positions = []
+    offsets_algo = {}
+
     while current_iteration <= iterations:
         for algo_conf in algo_configurations(algo_sel):
             print("Selected configuration:")
@@ -123,15 +125,29 @@ def run_experiment(iterations=1):
                 algo_conf[STR_LOCALIZATION],
                 current_iteration,
             )
-            export_experiment_results(
-                timestamp,
-                current_iteration == iterations,
-                algo_conf[STR_CLUSTERING],
-                algo_conf[STR_WALL_NORMAL],
-                algo_conf[STR_WALL_SELECTION],
-                algo_conf[STR_LOCALIZATION],
-                positions,
-            )
+
+            positions_original = [pos["original"] for pos in positions]
+            positions_computed = [pos["computed"] for pos in positions]
+            positions_offsets = [
+                np.linalg.norm(pos_orig - pos_comp)
+                for pos_orig, pos_comp in zip(positions_original, positions_computed)
+            ]
+
+            concatenated_string = ''.join([value.name for value in algo_conf.values()])
+            offsets_algo[concatenated_string] = sum(positions_offsets)/len(positions_offsets)
+
+            for key, value in offsets_algo.items():
+                print(f"{key}: {value:.2f}")
+
+            #export_experiment_results(
+            #    timestamp,
+            #    current_iteration == iterations,
+            #    algo_conf[STR_CLUSTERING],
+            #    algo_conf[STR_WALL_NORMAL],
+            #    algo_conf[STR_WALL_SELECTION],
+            #    algo_conf[STR_LOCALIZATION],
+            #    positions,
+            #)
         current_iteration += 1
     return positions
 

@@ -21,8 +21,8 @@ def compute_stereographic_projection(reflected_signals, hemispheres):
     for arc in arcs:
         for hemi in hemispheres:
             hemi.add_arc(arc)
-    for hemi in hemispheres:
-        viz.plot_line_segments(hemi)
+    #for hemi in hemispheres:
+    #    viz.plot_line_segments(hemi)
 
 
 # Find the connected components on each hemisphere
