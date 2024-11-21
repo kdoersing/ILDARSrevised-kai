@@ -77,6 +77,31 @@ class Runner:
             Runner._simulated_signals = {iteration: new_measurements}
             Runner._actual_wall_normals[iteration] = wall_nv
         return Runner._simulated_signals[iteration]
+    
+    @staticmethod
+    def _get_signals(
+        room,
+        receiver_position,
+        num_senders,
+        von_mises_error,
+        delta_error,
+        wall_error,
+        iteration,
+    ):
+        (
+            direct_signals,
+            reflected_signals,
+            wall_nv,
+        ) = generate_measurements(receiver_position, room, num_senders)
+        new_measurements = simulate_error(
+            direct_signals,
+            reflected_signals,
+            von_mises_error,
+            delta_error,
+            wall_error,
+        )
+        Runner._actual_wall_normals[iteration] = wall_nv  # Keep wall normals if needed
+        return new_measurements
 
     @staticmethod
     def _get_clusters(algo, iteration, signals, hemi_width_degree):

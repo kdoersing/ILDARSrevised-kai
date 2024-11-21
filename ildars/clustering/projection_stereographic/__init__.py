@@ -11,7 +11,7 @@ from .hemisphere import Hemisphere
 
 
 def compute_reflection_clusters(reflected_signals, hemi_width_degree):
-    hemispheres = Hemisphere.get_6_hemispheres()
+    hemispheres = Hemisphere.get_2_hemispheres()
     compute_stereographic_projection(reflected_signals, hemispheres, hemi_width_degree)
     return find_clusters(hemispheres)
 

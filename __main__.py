@@ -94,32 +94,27 @@ def algo_configurations(algo_sel):
             i_clustering += 1
 
 
-def run_experiment(iterations=1):
+def run_experiment(hemisphere_width, iter, iterations=1):
     timestamp = str(
         datetime.datetime.now().replace(second=0, microsecond=0).isoformat()
     )
+    current_iteration = 1
     timestamp = timestamp.replace(':', '_')
-
-    current_iteration = 0
-    positions = []
-    offsets_algo = {}
-    for algo_conf in algo_configurations(algo_sel):
-            concatenated_string = ''.join([value.name for value in algo_conf.values()])
-            offsets_algo[concatenated_string] = [] # sum(positions_offsets)/len(positions_offsets)
-
+    #algo_count = 1
     while current_iteration <= iterations:
-        hemi_width_degree = current_iteration
-        print("Iteration:", current_iteration)
+        hemi_width_degree = hemisphere_width
         for algo_conf in algo_configurations(algo_sel):
-            #print("Selected configuration:")
-            #print("  Clustering algorithm:", algo_conf[STR_CLUSTERING])
-            #print("  Wall normal algorithm:", algo_conf[STR_WALL_NORMAL])
-            #print("  Wall selection algorithm:", algo_conf[STR_WALL_SELECTION])
-            #print("  Localization algorithm:", algo_conf[STR_LOCALIZATION])
-            #print("  iteration:", current_iteration)
+            #print(algo_count)
+            #algo_count += 1
+            print("Selected configuration:")
+            print("  Clustering algorithm:", algo_conf[STR_CLUSTERING])
+            print("  Wall normal algorithm:", algo_conf[STR_WALL_NORMAL])
+            print("  Wall selection algorithm:", algo_conf[STR_WALL_SELECTION])
+            print("  Localization algorithm:", algo_conf[STR_LOCALIZATION])
+            print("  iteration:", current_iteration)
 
             positions = Runner.run_experiment(
-                testrooms.SLOPE,
+                testrooms.BIG_CUBE,
                 receiver_position,
                 NUM_SENDERS,
                 VON_MISES_CONCENTRATION,
@@ -129,7 +124,7 @@ def run_experiment(iterations=1):
                 algo_conf[STR_WALL_NORMAL],
                 algo_conf[STR_WALL_SELECTION],
                 algo_conf[STR_LOCALIZATION],
-                current_iteration,
+                iter,
                 hemi_width_degree
             )
 
@@ -141,7 +136,10 @@ def run_experiment(iterations=1):
             ]
             concatenated_string = ''.join([value.name for value in algo_conf.values()])
             average = np.mean(positions_offsets)
+            best_results.append(average)
             offsets_algo[concatenated_string].append(average)
+            print("Länge", len(positions_computed))
+            print(positions_offsets)
 
             #export_experiment_results(
             #    timestamp,
@@ -153,11 +151,22 @@ def run_experiment(iterations=1):
             #    positions,
             #)
         current_iteration += 1
-    #for key, value in offsets_algo.items():
-    #    formatted_values = ', '.join([f"{item:.2f}" for item in value])
-    #    print(f"{key}: [{formatted_values}]")
-    dict_to_csv(offsets_algo, "../Ergebnisse Hemisphere/6_Hemispheres-It-1.csv")
     return positions
+
+def calculate_best_average(best_results, iterations):
+    # Split the list into groups based on iterations
+    grouped_results = [best_results[i::iterations] for i in range(iterations)]
+
+    # Calculate averages
+    averages = [sum(group) / len(group) for group in zip(*grouped_results)]
+
+    # Find the index of the lowest average
+    closest_to_zero_index = min(range(len(averages)), key=lambda i: abs(averages[i])) + 1
+
+    # Output the results
+    print("Averages:", averages)
+    print("Amount of configurations:", len(averages))
+    print("The result with the lowest average is:", closest_to_zero_index)
 
 def dict_to_csv(input_dict, filename, include_keys=True):
     # Datei im Schreibmodus öffnen
@@ -176,4 +185,21 @@ def dict_to_csv(input_dict, filename, include_keys=True):
             else:
                 writer.writerow(rounded_values)
 
-run_experiment(360)
+
+positions = []
+offsets_algo = {}
+for algo_conf in algo_configurations(algo_sel):
+    concatenated_string = ''.join([value.name for value in algo_conf.values()])
+    offsets_algo[concatenated_string] = [] # sum(positions_offsets)/len(positions_offsets)
+
+best_results = []
+
+for i in range(1):
+    run_experiment(60, i)
+    print(i+1)
+
+#calculate_best_average(best_results, 1)
+#for key, value in offsets_algo.items():
+#    formatted_values = ', '.join([f"{item:.2f}" for item in value])
+#    print(f"{key}: [{formatted_values}]")
+#    #dict_to_csv(offsets_algo, "../Ergebnisse Hemisphere/results.csv")

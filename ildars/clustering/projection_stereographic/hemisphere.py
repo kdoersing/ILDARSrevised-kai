@@ -43,11 +43,11 @@ class Hemisphere:
             return
 
         if start_k <= K_THRESHOLD:
-            new_start = self.clip_vector_to_hemisphere(arc.start, arc.end)
+            new_start = self.clip_vector_to_hemisphere(arc.start, arc.end, hemi_width_degree)
             start_lat_lon = util.carth_to_lat_lon(new_start)
             start_k = util.get_k(start_lat_lon, hemi_lat_lon)
         elif end_k <= K_THRESHOLD:
-            new_end = self.clip_vector_to_hemisphere(arc.start, arc.end)
+            new_end = self.clip_vector_to_hemisphere(arc.start, arc.end, hemi_width_degree)
             end_lat_lon = util.carth_to_lat_lon(new_end)
             end_k = util.get_k(end_lat_lon, hemi_lat_lon)
 
@@ -77,7 +77,8 @@ class Hemisphere:
     # given two vectors v_out, v_in where v_out is outside the hemisphere and
     # v_in is inside, adjust v_in s.t. it also lands on the hemisphere without
     # the line between v_in and v_out losing its direction
-    def clip_vector_to_hemisphere(self, v_out, v_in):
+    def clip_vector_to_hemisphere(self, v_out, v_in, hemi_width_degree):
+        K_THRESHOLD = np.cos(np.radians(hemi_width_degree))
         circle_center = np.array([0, 0, 0])
         circle_normal = math_util.normalize(np.cross(v_in, v_out))
         hemi_plane_center = K_THRESHOLD * self.center
@@ -144,26 +145,6 @@ class Hemisphere:
         solution = mat_circ_std.dot(np.array([solution[0], solution[1], 0]))
 
         return solution
-
-    def get_intersection_graph(self):
-        line_indeces = [
-            line[STR_ARC].reflected_signal.index for line in self.lines
-        ]
-        g = nx.Graph()
-        g.add_nodes_from(line_indeces)
-        pairs = itertools.combinations(self.lines, 2)
-        for pair in pairs:
-            if util.intersect_2d(
-                pair[0][STR_START],
-                pair[0][STR_END],
-                pair[1][STR_START],
-                pair[1][STR_END],
-            ):
-                g.add_edge(
-                    pair[0][STR_ARC].reflected_signal.index,
-                    pair[1][STR_ARC].reflected_signal.index,
-                )
-        return g
 
     # Get 12 hemispheres with random initial orientation
     @staticmethod
@@ -281,3 +262,102 @@ class Hemisphere:
         rotation = sp.spatial.transform.Rotation.random()
         rotated_vectors = rotation.apply(normalized_vectors)
         return [Hemisphere(vec) for vec in rotated_vectors]
+    
+    def get_intersection_graph(self):
+        line_indices = [
+            line[STR_ARC].reflected_signal.index for line in self.lines
+        ]
+
+        # Use find_groups to determine connected components of intersections
+        groups = self.find_groups(self.lines)
+
+        # Filter out groups that are too small (e.g., single lines)
+        large_groups = groups #[group for group in groups if len(group) > 3]
+
+        g = nx.Graph()
+        # Add nodes for each line based on the filtered groups
+        for group in large_groups:
+            for idx in group:
+                g.add_node(line_indices[idx])
+
+            # Add edges within each group
+            for i, j in itertools.combinations(group, 2):
+                g.add_edge(line_indices[i], line_indices[j])
+
+        return g
+
+    def find_groups(self, lines):
+        """
+        Finds groups of lines which intersect and returns those groups.
+        Parameters:
+            lines (list): List of dictionaries, each representing a line with keys 'start' and 'end'.
+        Returns:
+            list: List of cleaned connected components representing groups of intersecting lines.
+        """
+        g = nx.Graph()
+        # Add nodes representing each line
+        g.add_nodes_from(range(len(lines)))
+
+        # Iterate over pairs of lines and add edges for intersections
+        for i, j in itertools.combinations(range(len(lines)), 2):
+            line1 = lines[i]
+            line2 = lines[j]
+
+            # Access 'start' and 'end' from dictionary
+            if util.intersect_2d(line1['start'], line1['end'], line2['start'], line2['end']):
+                g.add_edge(i, j)
+
+        # Use connected components to group intersecting lines
+        initial_groups = list(nx.connected_components(g))
+
+        # Clean up the groups using the clean_groups function
+        cleaned_groups = self.clean_groups([set(group) for group in initial_groups])
+
+        return [list(group) for group in cleaned_groups]
+    
+    def clean_groups(self, groups):
+        new_groups = []
+        merged_group_indices = set()
+
+        for outer_group_index in range(len(groups)):
+            does_intersect_flag = False
+ 
+            for inner_group_index in range(outer_group_index + 1, len(groups)):
+                intersection = set(groups[outer_group_index]).intersection(groups[inner_group_index])
+
+                if len(intersection) > 0:
+                    does_intersect_flag = True
+                    merged_group_indices.add(outer_group_index)
+                    merged_group_indices.add(inner_group_index)
+                    new_groups.append(list(intersection))
+
+            if not does_intersect_flag:
+                new_groups.append(groups[outer_group_index])
+
+        return new_groups
+
+
+    
+
+    #def get_intersection_graph(self):
+    #    line_indeces = [
+    #        line[STR_ARC].reflected_signal.index for line in self.lines
+    #    ]
+    #   
+    #    g = nx.Graph()
+    #    g.add_nodes_from(line_indeces)
+    #    pairs = itertools.combinations(self.lines, 2)
+    #    for pair in pairs:
+    #        if util.intersect_2d(
+    #            pair[0][STR_START],
+    #            pair[0][STR_END],
+    #            pair[1][STR_START],
+    #            pair[1][STR_END],
+    #        ):
+    #            g.add_edge(
+    #                pair[0][STR_ARC].reflected_signal.index,
+    #                pair[1][STR_ARC].reflected_signal.index,
+    #            )
+    #    return g
+
+
